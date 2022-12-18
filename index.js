@@ -124,11 +124,10 @@ document.forms.catsForm.addEventListener("submit", (event) => {
   const addingCat = async (data) => {
     const response = await api.addCat(data);
     const errorMsg = await response.json();
-    // response.ok ? gettingCats() : errorMsg;
     if (response.ok) {
-      return gettingCats();
+      gettingCats();
     } else {
-      return ($errorMessage.innerHTML = errorMsg.message);
+      $errorMessage.innerHTML = errorMsg.message;
     }
   };
   addingCat(data);
