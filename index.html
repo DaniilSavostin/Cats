@@ -87,9 +87,75 @@
         </form>
       </div>
     </div>
-    <div data-modal_edit class="modal-wrapper hidden">
+    <div data-modal_about class="modal-wrapper hidden">
       <div class="custom-modal">
         <p class="cat-description"></p>
+      </div>
+    </div>
+    <div data-modal_edit class="modal-wrapper hidden">
+      <div class="custom-modal">
+        <form name="updateForm">
+          <input
+            hidden
+            data-cat_id
+            type="number"
+            name="id"
+            placeholder="Id"
+            class="form-control mb-2"
+            id="exampleInputEmail4"
+          />
+          <input
+            data-cat_name
+            type="text"
+            name="name"
+            placeholder="Name"
+            class="form-control mb-2"
+            id="exampleInputEmail1"
+          />
+          <input
+            data-cat_description
+            type="text"
+            name="description"
+            placeholder="About"
+            class="form-control mb-2"
+            id="exampleInputEmail2"
+          />
+          <input
+            data-cat_image
+            type="text"
+            name="image"
+            placeholder="Image URL"
+            class="form-control mb-2"
+            id="exampleInputEmail3"
+          />
+          <input
+            data-cat_age
+            type="number"
+            name="age"
+            placeholder="Age"
+            class="form-control mb-2"
+            id="exampleInputEmail5"
+          />
+          <input
+            data-cat_rate
+            type="number"
+            name="rate"
+            placeholder="Rating"
+            class="form-control mb-2"
+            id="exampleInputEmail6"
+          />
+          <div class="mb-3 form-check">
+            <input
+              data-cat_favorite
+              name="favorite"
+              type="checkbox"
+              class="form-check-input"
+              id="exampleCheck1"
+            />
+            <label class="form-check-label" for="exampleCheck1">Favorite</label>
+          </div>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </form>
       </div>
     </div>
   </body>

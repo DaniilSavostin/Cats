@@ -2,8 +2,8 @@ const $wrapper = document.querySelector("[data-wrapper]");
 const $addButton = document.querySelector("[data-add_button]");
 const $modal = document.querySelector("[data-modal]");
 const $form = document.querySelector("form");
-const $modalShow = document.querySelector("[data-modal_show]");
 const $errorMessage = document.querySelector("[data-error]");
+const $modalAbout = document.querySelector("[data-modal_about]");
 const $modalEdit = document.querySelector("[data-modal_edit]");
 
 const api = new Api("dsavostin");
@@ -17,11 +17,13 @@ const generationCatCard = (
   <p class="card-text">Age: ${cat.age}</p>
   <p class="card-text">Rating: ${cat.rate}</p>
   <p class="card-text">Favorite: ${cat.favorite}</p>
-  <button data-action="show" class="btn btn-primary">About</button>
-  <button data-action="delete" class="btn btn-danger">Delete</button>
+  <button data-action="about" class="btn btn-primary">About</button>
   <button data-action="edit" class="btn btn-warning">Edit</button>
+  <button data-action="delete" class="btn btn-danger">Delete</button>
 </div>
 </div>`;
+
+// Работа с api
 
 $wrapper.addEventListener("click", (event) => {
   switch (event.target.dataset.action) {
@@ -32,27 +34,82 @@ $wrapper.addEventListener("click", (event) => {
       $currentCard.remove();
       break;
 
-    case "show":
-      $modalEdit.classList.remove("hidden");
-      const $currentCardEdit = event.target.closest("[data-card_id]");
-      const catIdEdit = $currentCardEdit.dataset.card_id;
-      const showCat = async (catIdEdit) => {
-        const response = await api.getCat(catIdEdit);
+    case "about":
+      $modalAbout.classList.remove("hidden");
+      const $currentCardAbout = event.target.closest("[data-card_id]");
+      const catIdAbout = $currentCardAbout.dataset.card_id;
+      const aboutCat = async (catIdAbout) => {
+        const response = await api.getCat(catIdAbout);
         const data = await response.json();
         document.querySelector(
           ".cat-description"
         ).innerHTML = `${data.description}`;
       };
-      showCat(catIdEdit);
+      aboutCat(catIdAbout);
       break;
     case "edit":
-      //TODO: добавить форму редактирования
+      $modalEdit.classList.remove("hidden");
+      const $currentCardEdit = event.target.closest("[data-card_id]");
+      const catIdEdit = $currentCardEdit.dataset.card_id;
+
+      const editCat = async (catIdEdit) => {
+        const response = await api.getCat(catIdEdit);
+        const data = await response.json();
+        Object.keys(data).forEach((key) => {
+          document.forms.updateForm[key].value = data[key];
+        });
+        // Оставлю это, чтобы помозолить глаза Григорию KEKW
+        // document.querySelector("[data-cat_id]").value = `${data.id}`;
+        // document.querySelector("[data-cat_name]").value = `${data.name}`;
+        // document.querySelector(
+        //   "[data-cat_description]"
+        // ).value = `${data.description}`;
+        // document.querySelector("[data-cat_image]").value = `${data.image}`;
+        // document.querySelector("[data-cat_age]").value = `${data.age}`;
+        // document.querySelector("[data-cat_rate]").value = `${data.rate}`;
+        // document.querySelector("[data-cat_favorite").value = `${data.favorite}`;
+      };
+      editCat(catIdEdit);
       break;
 
     default:
       break;
   }
 });
+
+document.forms.updateForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const data = Object.fromEntries(new FormData(event.target).entries());
+
+  data.age = Number(data.age);
+  data.rate = Number(data.rate);
+  data.favorite = data.favorite === "on";
+  const catIdUpdate = document.querySelector("[data-cat_id]").value;
+  const updateCat = async (data, catIdUpdate) => {
+    const response = await api.updCat(data, catIdUpdate);
+    const cat = await response.json();
+    gettingCats();
+    return $modalEdit.classList.add("hidden");
+  };
+  updateCat(data, catIdUpdate);
+});
+
+$addButton.addEventListener("click", () => {
+  $modal.classList.remove("hidden");
+});
+
+const gettingCats = async () => {
+  const response = await api.getCats();
+  const data = await response.json();
+  $wrapper.replaceChildren();
+  data.forEach((cat) => {
+    $wrapper.insertAdjacentHTML("beforeend", generationCatCard(cat));
+  });
+  $errorMessage.innerHTML = "";
+  return $modal.classList.add("hidden");
+};
+gettingCats();
 
 document.forms.catsForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -64,36 +121,24 @@ document.forms.catsForm.addEventListener("submit", (event) => {
   data.rate = Number(data.rate);
   data.favorite = data.favorite === "on";
 
-  console.log(data);
-
   const addingCat = async (data) => {
     const response = await api.addCat(data);
     const errorMsg = await response.json();
-    response.ok ? gettingCats() : errorMsg;
-    $errorMessage.innerHTML = errorMsg.message;
+    // response.ok ? gettingCats() : errorMsg;
+    if (response.ok) {
+      return gettingCats();
+    } else {
+      return ($errorMessage.innerHTML = errorMsg.message);
+    }
   };
   addingCat(data);
 });
 
-$addButton.addEventListener("click", () => {
-  $modal.classList.remove("hidden");
-});
-
-const gettingCats = async () => {
-  const response = await api.getCats();
-  const data = await response.json();
-  $wrapper.childNodes.forEach((element) => element.remove());
-  data.forEach((cat) => {
-    $wrapper.insertAdjacentHTML("beforeend", generationCatCard(cat));
-  });
-  $errorMessage.innerHTML = "";
-  return $modal.classList.add("hidden");
-};
-gettingCats();
-
+// hide buttons
 document.addEventListener("keydown", (e) => {
   if (e.key == "Escape") {
     $modal.classList.add("hidden");
+    $modalAbout.classList.add("hidden");
     $modalEdit.classList.add("hidden");
     $form.reset();
   }
@@ -105,9 +150,15 @@ $modal.addEventListener("click", (e) => {
   }
 });
 
+$modalAbout.addEventListener("click", (e) => {
+  if (!e.target.closest(".custom-modal")) {
+    $modalAbout.classList.add("hidden");
+  }
+});
 $modalEdit.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-modal")) {
     $modalEdit.classList.add("hidden");
+    $form.reset();
   }
 });
 
