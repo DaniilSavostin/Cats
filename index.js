@@ -58,16 +58,6 @@ $wrapper.addEventListener("click", (event) => {
         Object.keys(data).forEach((key) => {
           document.forms.updateForm[key].value = data[key];
         });
-        // Оставлю это, чтобы помозолить глаза Григорию KEKW
-        // document.querySelector("[data-cat_id]").value = `${data.id}`;
-        // document.querySelector("[data-cat_name]").value = `${data.name}`;
-        // document.querySelector(
-        //   "[data-cat_description]"
-        // ).value = `${data.description}`;
-        // document.querySelector("[data-cat_image]").value = `${data.image}`;
-        // document.querySelector("[data-cat_age]").value = `${data.age}`;
-        // document.querySelector("[data-cat_rate]").value = `${data.rate}`;
-        // document.querySelector("[data-cat_favorite").value = `${data.favorite}`;
       };
       editCat(catIdEdit);
       break;
